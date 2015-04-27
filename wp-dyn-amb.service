@@ -1,0 +1,12 @@
+[Unit]
+Description="Dynamic ambassador for MySQLd"
+
+[Service]
+ExecStartPre=-/usr/bin/docker kill %n
+ExecStartPre=-/usr/bin/docker rm %n
+ExecStartPre=-/usr/bin/docker pull finferflu/dynamic-etcd-amb
+ExecStart=/bin/bash -c "HOST_IP=$(/bin/ifconfig eth1 | awk '/inet /{print $2}') && exec /usr/bin/docker run --rm --name %n --expose=3306 finferflu/dynamic-etcd-amb $HOST_IP 4001 mysqld-A 3306"
+ExecStop=/usr/bin/docker stop -t 3 %n
+
+[X-Fleet]
+Conflicts=wp-mysqld.service

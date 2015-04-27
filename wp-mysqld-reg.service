@@ -1,0 +1,12 @@
+[Unit]
+Description="MySQL docker register service"
+After=wp-mysqld.service
+
+[Service]
+ExecStartPre=-/usr/bin/docker kill %n
+ExecStartPre=-/usr/bin/docker rm %n
+ExecStartPre=-/usr/bin/docker pull finferflu/docker-reg
+ExecStart=/bin/bash -c "HOST_IP=$(/bin/ifconfig eth1 | awk '/inet /{print $2}') && exec /usr/bin/docker run -v /var/run/docker.sock:/var/run/docker.sock --rm --name %n finferflu/docker-reg $HOST_IP 4001 wp-mysqld.service 3306 mysqld-A"
+
+[X-Fleet]
+MachineOf=wp-mysqld.service

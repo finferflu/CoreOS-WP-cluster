@@ -1,0 +1,13 @@
+[Unit]
+Description="MySQL server"
+
+[Service]
+ExecStartPre=-/usr/bin/docker kill %n
+ExecStartPre=-/usr/bin/docker rm %n
+ExecStartPre=-/usr/bin/docker pull mysql:5.5
+ExecStart=/bin/bash -c "HOST_IP=$(/bin/ifconfig eth1 | awk '/inet /{print $2}') && exec /usr/bin/docker run --rm --name %n  -p $HOST_IP::3306 -e MYSQL_ROOT_PASSWORD='ZV4ZwvZ8e28K' mysql:5.5"
+ExecStop=/usr/bin/docker stop wp-mysqld
+
+[X-Fleet]
+Conflicts=wordpress@*.service
+Conflicts=wp-mysqld.service
